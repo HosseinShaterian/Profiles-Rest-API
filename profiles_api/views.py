@@ -22,6 +22,23 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'email',)
 
+    def perform_update(self, serializer):
+        # بروزرسانی name و email اگر ارسال شده باشند
+        name = self.request.data.get('name')
+        email = self.request.data.get('email')
+        if name is not None:
+            serializer.instance.name = name
+        if email is not None:
+            serializer.instance.email = email
+
+        # هش کردن رمز عبور اگر ارسال شده باشد
+        password = self.request.data.get('password')
+        if password:
+            serializer.instance.set_password(password)
+
+        # ذخیره تغییرات در دیتابیس
+        serializer.instance.save()
+
 
 class UserLogingApiView(ObtainAuthToken):
     """Handle creating user authentication tokens"""
